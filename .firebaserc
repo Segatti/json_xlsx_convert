@@ -1,5 +1,10 @@
 {
   "projects": {
-    "default": "json-to-xlsx-berdan"
+    "default": "sandboxb-43947"
+  },
+  "dataconnectEmulatorConfig": {
+    "postgres": {
+      "localConnectionString": "postgresql://localhost:5432?sslmode=disable"
+    }
   }
 }
