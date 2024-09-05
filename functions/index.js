@@ -7,28 +7,29 @@ const { xlsxToJson } = require('./utils/xlsxToJson');
 const multer = require('multer');
 
 // Definir uma Cloud Function HTTP que processa o JSON e converte em XLSX
-exports.convertJsonToXlsx = onRequest(async (request, response) => {
+exports.convertJsonToXlsx = functions.https.onRequest(async (request, response) => {
   try {
-    // Obter o JSON enviado na requisição
-    const jsonData = request.body;
+    // Obter os parâmetros do body: jsonData e outputPath
+    const { jsonData, outputPath } = request.body;
 
-    // Verificar se o JSON é válido
+    // Verificar se o JSON foi enviado e se é uma lista de objetos
     if (!jsonData || !Array.isArray(jsonData)) {
-      response.status(400).send('JSON inválido. Deve ser uma lista de objetos.');
-      return;
+      return response.status(400).send('JSON inválido. Deve ser uma lista de objetos.');
     }
 
-    // Definir o nome do arquivo
-    const outputFile = `output-${Date.now()}.xlsx`;
+    // Verificar se o outputPath foi enviado e é uma string
+    if (!outputPath || typeof outputPath !== 'string') {
+      return response.status(400).send('Caminho inválido. Deve ser uma string representando o local onde o arquivo será salvo.');
+    }
 
     // Chamar a função de processamento e upload
-    const downloadLink = await processJsonAndUpload(jsonData, outputFile);
+    const downloadLink = await processJsonAndUpload(jsonData, outputPath);
 
-    // Retornar o link público na resposta
-    response.status(200).send({ link: downloadLink });
+    // Retornar o link público do arquivo na resposta
+    return response.status(200).send({ link: downloadLink });
   } catch (error) {
     logger.error('Erro ao converter JSON para XLSX:', error);
-    response.status(500).send('Erro ao processar o arquivo.');
+    return response.status(500).send('Erro ao processar o arquivo.');
   }
 });
 
