@@ -3,6 +3,39 @@
 const XLSX = require("xlsx");
 const bucket = require('../firebaseConfig');
 
+function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function checkHasArray(json) {
+    let keysWithArrays = [];
+
+    function findArrays(data, parentKey = '') {
+        if (Array.isArray(data)) {
+            data.forEach((item) => {
+                if (typeof item === 'object' && item !== null) {
+                    findArrays(item, parentKey);
+                }
+            });
+        } else if (typeof data === 'object' && data !== null) {
+            for (let key in data) {
+                if (data.hasOwnProperty(key)) {
+                    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+                    if (Array.isArray(data[key])) {
+                        keysWithArrays.push(fullKey);
+                    } else if (typeof data[key] === 'object' && data[key] !== null) {
+                        findArrays(data[key], fullKey);
+                    }
+                }
+            }
+        }
+    }
+
+    findArrays(json);
+    return [...new Set(keysWithArrays)];
+}
+
 // Função para fazer o flatten do JSON
 function flattenJson(nestedJson, parentKey = '', result = {}) {
     if (Array.isArray(nestedJson)) {

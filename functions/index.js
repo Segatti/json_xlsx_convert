@@ -1,6 +1,6 @@
 // index.js
-
-const { onRequest } = require("firebase-functions/v2/https");
+const functions = require('firebase-functions');
+// const { onRequest } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const { processJsonAndUpload } = require('./utils/jsonToXlsx');
 const { xlsxToJson } = require('./utils/xlsxToJson');
