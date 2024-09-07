@@ -99,13 +99,18 @@ function buildJsonFromSheet(row, index, workbook, prevTab) {
 
 // Função principal que será exportada
 function xlsxToJson(filePath, numSpaces = 2) {
-  const workbook = XLSX.readFile(filePath);
-  const mainSheet = workbook.Sheets['Data'];
+  // const workbook = XLSX.read(filePath, { type: 'buffer' });
+  const mainSheet = filePath.Sheets['Data'];
+
+  if (!mainSheet) {
+    throw new Error("A planilha 'Data' não foi encontrada.");
+  }
+
   const mainData = parseSheetToJson(mainSheet);
 
   let resultJson = [];
   mainData.forEach((item, index) => {
-    resultJson.push(buildJsonFromSheet(item, index, workbook, "Data"));
+    resultJson.push(buildJsonFromSheet(item, index, filePath, "Data"));
   });
   return JSON.stringify(unflattenJson(resultJson), null, numSpaces);
 }
